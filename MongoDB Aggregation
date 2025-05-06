@@ -1,0 +1,79 @@
+db.sales.insertMany([
+  { "date": ISODate("2025-04-15T00:00:00Z"), "store": "Store A",
+    "items": [
+      { "name": "item 1", "quantity": 5, "price": 10.0 },
+      { "name": "item 2", "quantity": 3, "price": 20.0 }
+    ]
+  },
+    { "date": ISODate("2025-03-15T00:00:00Z"), "store": "Store A",
+    "items": [
+      { "name": "item 1", "quantity": 5, "price": 10.0 },
+      { "name": "item 2", "quantity": 3, "price": 20.0 }
+    ]
+  },
+  { "date": ISODate("2025-01-16T00:00:00Z"), "store": "Store B",
+    "items": [
+      { "name": "item 1", "quantity": 6, "price": 20.0 },
+      { "name": "item 2", "quantity": 2, "price": 25.0 }
+    ]
+  },
+  { "date": ISODate("2025-02-17T00:00:00Z"), "store": "Store C",
+    "items": [
+      { "name": "item 3", "quantity": 4, "price": 15.0 },
+      { "name": "item 4", "quantity": 5, "price": 30.0 }
+    ]
+  },
+  { "date": ISODate("2025-04-18T00:00:00Z"), "store": "Store D",
+    "items": [
+      { "name": "item 5", "quantity": 2, "price": 50.0 },
+      { "name": "item 6", "quantity": 3, "price": 40.0 }
+    ]
+  },
+  { "date": ISODate("2025-03-19T00:00:00Z"), "store": "Store E",
+    "items": [
+      { "name": "item 7", "quantity": 8, "price": 12.0 },
+      { "name": "item 8", "quantity": 1, "price": 60.0 }
+    ]
+  }
+]);
+
+// db.sales.find()
+
+db.sales.aggregate([
+  {
+    "$unwind": "$items"
+  },
+  {
+    "$addFields": {
+      month:
+      {
+        $concat: [
+          {$toString: {$year: "$date"} }, "-", {$toString: {$month: "$date"}}
+          ]
+      },
+
+    }
+  },
+  {
+    $group: {
+      _id: { store: "$store", month: "$month" },
+      totalRevenue: { $sum: { $multiply:["$items.price", "$items.quantity"] } },
+      averagePrice: { $avg: "$items.price" }
+    }
+  },
+    {
+    $sort: {
+      "_id.store": 1,
+      "_id.month": 1
+    }
+  },
+  {
+    $project: {
+      _id: 0,
+      "store": "$_id.store",
+      month: "$_id.month",
+      totalRevenue: "$totalRevenue",
+      averagePrice: "$averagePrice"
+    }
+  }
+  ]).pretty()
