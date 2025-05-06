@@ -1,0 +1,20 @@
+Given an array of integers nums and an integer target, return the indices of the two
+numbers such that they add up to target. You may assume that each input would have exactly one
+solution, and you may not use the same element twice. You can return the answer in any order.
+
+Ans:
+
+function sumIndices(arr, target){
+    let indices = []
+    let myMap = new Map();
+    arr.forEach((value, index) => {
+        let remainder = target - value;
+        if(myMap.has(remainder)){
+            indices.push(index, myMap.get(remainder))
+        }
+        myMap.set(value, index)
+    })
+    return indices;
+}
+ 
+console.log(sumIndices([5, 2, 7, 11, 15],9))
